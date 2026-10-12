@@ -1,0 +1,18 @@
+id = "jdl/dualsense-battery"
+name = "DualSense Battery"
+description = "Shows the DualSense controller's battery level in the bar via UPower"
+version = "0.1.0"
+plugin_api = 9
+author = "jdl"
+license = "MIT"
+icon = "device-gamepad-2"
+tags = ["hardware", "gaming"]
+dependencies = ["gdbus"]
+
+[[service]]
+id = "poller"
+entry = "service.luau"
+
+[[widget]]
+id = "battery"
+entry = "widget.luau"
