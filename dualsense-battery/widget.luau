@@ -8,7 +8,8 @@ local function render(data)
 
   if not data.present then
     barWidget.setGlyph(GLYPH)
-    barWidget.setText("--")
+    barWidget.setGlyphColor("disabled")
+    barWidget.setText("")
     barWidget.setTooltip({
       { key = "DualSense", value = "Not detected" },
     })
@@ -23,6 +24,7 @@ local function render(data)
   end
 
   barWidget.setGlyph(GLYPH)
+  barWidget.setGlyphColor("")
   barWidget.setText(label)
   barWidget.setTooltip({
     { key = "DualSense", value = percent and (math.floor(percent + 0.5) .. "%") or "Unknown" },
