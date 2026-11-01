@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 # Usage: monitor-profile.sh {dual|extended|mirror}
 #
-# Reescribe config/monitors.lua con el bloque de MONITOR3 correspondiente al
-# perfil elegido y recarga con `hyprctl reload`. Se reescribe el archivo (en
-# vez de aplicar el cambio solo en vivo con `hyprctl eval`) porque un reload
-# posterior -manual o disparado por otra cosa (ej. cambio de wallpaper/tema)-
-# vuelve a leer este archivo desde cero y descartaría cualquier cambio hecho
-# solo en memoria, regresando siempre al perfil "extended" que quedaría
-# declarado en el archivo. Así el perfil activo persiste entre reloads.
+# Rewrites config/monitors.lua with the MONITOR3 block for the chosen profile
+# and reloads with `hyprctl reload`. The file is rewritten (instead of applying
+# the change only live with `hyprctl eval`) because any later reload (manual or
+# triggered by something else, e.g. a wallpaper/theme change) reads this file
+# from scratch and would discard changes made only in memory, always falling
+# back to the profile declared in the file. This way the active profile
+# persists across reloads.
 set -euo pipefail
 
 MONITORS_LUA="$HOME/.config/hypr/config/monitors.lua"
 
 case "${1:-}" in
   dual)
+    MON3_ACTIVE=false
     MON3_BLOCK='hl.monitor({
     output    = MONITOR3,
     disabled  = true,
@@ -21,6 +22,7 @@ case "${1:-}" in
 })'
     ;;
   extended)
+    MON3_ACTIVE=true
     MON3_BLOCK='hl.monitor({
     output    = MONITOR3,
     mode      = "1920x1080@60",
@@ -31,6 +33,7 @@ case "${1:-}" in
 })'
     ;;
   mirror)
+    MON3_ACTIVE=false
     MON3_BLOCK='hl.monitor({
     output    = MONITOR3,
     mode      = "1920x1080@60",
@@ -70,8 +73,11 @@ hl.monitor({
     scale     = "auto",
 })
 
--- Perfil activo: ${1}. Cambiar con scripts/monitor-profile.sh {dual|extended|mirror}
+-- Active profile: ${1}. Change it with scripts/monitor-profile.sh {dual|extended|mirror}
 $MON3_BLOCK
+
+-- Read by config/workspaces.lua: workspace 3 only exists when MONITOR3 is extended
+MONITOR3_ACTIVE = $MON3_ACTIVE
 EOF
 
 hyprctl reload

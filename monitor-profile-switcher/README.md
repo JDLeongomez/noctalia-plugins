@@ -1,6 +1,6 @@
 # monitor-profile-switcher
 
-> ⚠️ Much of this plugin's code was created using Claude Code (Sonnet 5).
+> ⚠️ Much of this plugin's code was created using Claude Code (Opus 5.5).
 > I created this plugin simply to solve a specific problem with my system, but I'm making it publicly available in case it's useful to someone else.
 
 Switch quickly between 3 monitor configurations in Hyprland (native Lua configuration), using a widget on the [Noctalia](https://noctalia.dev) bar and 3 direct keyboard shortcuts. Originally designed for a 2-monitor + TV setup, but it serves as a template for any combination of fixed outputs.
@@ -19,6 +19,7 @@ There is no official or community-developed Noctalia plugin for this. Two third-
 
 - `hypr/monitor-profile.sh` rewrites `~/.config/hypr/config/monitors.lua` with the TV block corresponding to the selected profile, and runs `hyprctl reload`. The file is rewritten (rather than applying the change only in real time with `hyprctl eval`) because a subsequent reload – whether manual or triggered by something else (such as a change of wallpaper or theme) – re-reads that file from scratch and would discard any changes made solely in memory. This ensures that the active profile persists between reloads.
 - The Noctalia plugin (`plugin.toml` + `service.luau` + `widget.luau`) does not apply the logic itself: `service.luau` polls `hyprctl monitors all -j` every second to detect which profile is actually active (in case it was changed via shortcuts or manually), and calls the same script when the widget is clicked or an IPC event is received. Logic in one place, not duplicated in Lua (Hyprland) and Luau (Noctalia).
+- The script also writes `MONITOR3_ACTIVE = true|false` at the end of `monitors.lua` (`true` only in the extended profile). It is optional: if your `workspaces.lua` binds workspace 3 to the TV with a persistent rule, read this variable there so the rule is skipped when the TV is off or mirrored. Otherwise Hyprland moves the empty workspace 3 to another monitor and keeps it forever. This requires `require("config.monitors")` to come before `require("config.workspaces")` in `hyprland.lua`. If you don't use per-monitor workspace rules, you can ignore it.
 - Keyboard shortcuts (`hypr/binds-snippet.lua`) call the script directly, so they work even if the Noctalia bar is down.
 
 Note on Hyprland with native Lua configuration: `hyprctl keyword monitor ...` does not work there (“keyword can’t work with non-legacy parsers”); the equivalent in production is `hyprctl eval` executing `hl.monitor({...})`, the same function used by `monitors.lua`. The script uses this function both for live execution and for what it writes to the file.
