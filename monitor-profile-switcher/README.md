@@ -40,7 +40,13 @@ Clone the entire repository (see the root README) and then:
    cp monitor-profile-switcher/hypr/monitor-profile.sh ~/.config/hypr/scripts/
    chmod +x ~/.config/hypr/scripts/monitor-profile.sh
    ```
-2. **Edit the outputs.** Find out what yours are using `hyprctl monitors` and adjust `MON1`/`MON2`/`MON3` at the start of `~/.config/hypr/scripts/monitor-profile.sh`.
+2. **Define the outputs.** Find out what yours are using `hyprctl monitors all`. The script does not contain output names: the `monitors.lua` it writes uses the Lua globals `MONITOR1`, `MONITOR2` and `MONITOR3` (left monitor, main monitor, TV), so define them in a file loaded before `monitors.lua` (e.g. `config/variables.lua`):
+   ```lua
+   MONITOR1 = "DP-2"
+   MONITOR2 = "DP-3"
+   MONITOR3 = "HDMI-A-1"
+   ```
+   Also replace `HDMI-A-1` in `service.luau` with your TV's output name (the plugin uses it to detect the active profile).
 3. **Add the shortcuts.** Copy the contents of `monitor-profile-switcher/hypr/binds-snippet.lua` into your `config/binds.lua` (or whichever keybinds file you use), and run `hyprctl reload`.
 4. **Enable the plugin.** Add the repository as a source in Noctalia (see the root README) and enable `jdl/monitor-profile-switcher`.
 5. **Add the widget.** In Noctalia: Settings → Bar → add ‘Monitor Profile Switcher → toggle’ to the section of your choice.
@@ -73,5 +79,5 @@ hyprctl monitors all -j   # "mirrorOf" points to monitor2
 
 ## Known limitations
 
-- The output names (`DP-2`, `DP-3`, `HDMI-A-1`) are hard-coded at the start of `monitor-profile.sh`. On a different machine, with different hardware, you’ll need to edit them manually; this is not a setting that can be changed via the Noctalia UI (making it generalised in this way would only make sense for publication in the community catalogue, which is not the aim of this plugin).
+- The TV's output name (`HDMI-A-1`) is hard-coded in `service.luau`, and the script relies on the `MONITOR1`–`MONITOR3` globals from your Hyprland config. On a different machine you need to set both manually; this is not a setting that can be changed via the Noctalia UI (making it configurable would only make sense for publication in the community catalogue, which is not the aim of this plugin).
 - This requires your Hyprland configuration to use the native Lua style (`hl.monitor`, `hl.bind`); it does not apply to a standard `hyprland.conf` file without adapting the commands.
